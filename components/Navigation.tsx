@@ -19,6 +19,12 @@ export function Navigation() {
             <Link href="/launch" className="text-sm font-medium transition-colors hover:text-primary">
               Launch Token
             </Link>
+            <Link href="/liquidity" className="text-sm font-medium transition-colors hover:text-primary">
+              Create Pool
+            </Link>
+            <Link href="/manage-pools" className="text-sm font-medium transition-colors hover:text-primary">
+              Manage Pools
+            </Link>
             <Link href="/dashboard" className="text-sm font-medium transition-colors hover:text-primary">
               Dashboard
             </Link>
