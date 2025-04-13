@@ -100,83 +100,21 @@ token-launch-pad/
 ## Development
 
 ### Tech Stack
-- Next.js 14 (App Router)
+- Next.js (App Router)
 - TypeScript 5.0+
 - Solana Web3.js
 - @solana/wallet-adapter
 - Tailwind CSS
 - Shadcn/ui components
 
-### Dependencies
-```json
-{
-  "dependencies": {
-    "@solana/wallet-adapter-react": "^0.15.35",
-    "@solana/wallet-adapter-wallets": "^0.19.15",
-    "@solana/web3.js": "^1.87.6",
-    "next": "14.0.4",
-    "react": "^18",
-    "react-dom": "^18"
-  }
-}
-```
 
-### Contributing
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
-## Security Considerations
-
-- Never commit your `.env` file
-- Keep your private keys secure
-- Use environment variables for sensitive data
-- Regularly update dependencies
-- Implement proper error handling
-- Use secure RPC endpoints
-- Validate all user inputs
-- Implement rate limiting for API calls
-
-## Testing
-
-### Unit Tests
-```bash
-npm run test
-# or
-yarn test
-```
-
-### Integration Tests
-```bash
-npm run test:integration
-# or
-yarn test:integration
-```
-
-## Deployment
-
-### Vercel Deployment
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Configure environment variables
-4. Deploy
-
-### Local Build
-```bash
-npm run build
-# or
-yarn build
-```
 
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Support
 
-For support, please:
-1. Check the [documentation](https://github.com/RaghavenderSingh/token-launch-pad/wiki)
-2. Open an issue in the GitHub repository
-3. Contact the development team
+## ⭐ Found This Helpful? Show Some Love! ⭐
+
+
