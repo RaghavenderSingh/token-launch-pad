@@ -94,9 +94,14 @@ export default function LiquidityPoolPage() {
       fetchUserPools();
     } catch (error) {
       console.error('Error creating liquidity pool:', error);
+      
+      // Check for the specific mainnet-only error message
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create liquidity pool';
+      const isMainnetOnlyError = errorMessage.includes('only supported on mainnet');
+      
       toast({
-        title: 'Error',
-        description: 'Failed to create liquidity pool. Please try again.',
+        title: isMainnetOnlyError ? 'Mainnet Only Feature' : 'Error',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {

@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { getUserLiquidityPools, addLiquidity, removeLiquidity, LiquidityPool } from '@/lib/raydium';
 import Link from 'next/link';
 import { fetchTokenInfo } from '@/lib/token-utils';
+import PoolAnalytics from '@/components/PoolAnalytics';
 
 export default function ManagePoolsPage() {
   const { publicKey } = useWallet();
@@ -29,6 +30,9 @@ export default function ManagePoolsPage() {
   // Action states
   const [isAddingLiquidity, setIsAddingLiquidity] = useState(false);
   const [isRemovingLiquidity, setIsRemovingLiquidity] = useState(false);
+  
+  // UI state
+  const [activeTab, setActiveTab] = useState<'manage' | 'analytics'>('manage');
   
   useEffect(() => {
     if (publicKey) {
@@ -297,164 +301,167 @@ export default function ManagePoolsPage() {
                 </div>
               </div>
               
-              {/* Management Actions */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Add Liquidity */}
-                <div className="border rounded-lg p-6">
-                  <h3 className="text-lg font-medium mb-4">Add Liquidity</h3>
-                  <form onSubmit={handleAddLiquidity} className="space-y-4">
-                    <div>
-                      <label htmlFor="addTokenAmount" className="block text-sm font-medium mb-2">
-                        {tokenInfo?.symbol || selectedPool.tokenSymbol} Amount
-                      </label>
-                      <Input
-                        id="addTokenAmount"
-                        type="number"
-                        value={addTokenAmount}
-                        onChange={(e) => setAddTokenAmount(e.target.value)}
-                        placeholder={`Amount of ${tokenInfo?.symbol || selectedPool.tokenSymbol}`}
-                        step="0.000000001"
-                        min="0"
-                        required
-                      />
+              {/* Tab Navigation */}
+              <div className="flex border-b">
+                <button
+                  onClick={() => setActiveTab('manage')}
+                  className={`px-4 py-2 font-medium ${
+                    activeTab === 'manage'
+                      ? 'border-b-2 border-primary'
+                      : 'text-muted-foreground'
+                  }`}
+                >
+                  Manage Liquidity
+                </button>
+                <button
+                  onClick={() => setActiveTab('analytics')}
+                  className={`px-4 py-2 font-medium ${
+                    activeTab === 'analytics'
+                      ? 'border-b-2 border-primary'
+                      : 'text-muted-foreground'
+                  }`}
+                >
+                  Pool Analytics
+                </button>
+              </div>
+              
+              {activeTab === 'manage' ? (
+                <>
+                  {/* Management Actions */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Add Liquidity */}
+                    <div className="border rounded-lg p-6">
+                      <h3 className="text-lg font-medium mb-4">Add Liquidity</h3>
+                      <form onSubmit={handleAddLiquidity} className="space-y-4">
+                        <div>
+                          <label htmlFor="addTokenAmount" className="block text-sm font-medium mb-2">
+                            {tokenInfo?.symbol || selectedPool.tokenSymbol} Amount
+                          </label>
+                          <Input
+                            id="addTokenAmount"
+                            type="number"
+                            value={addTokenAmount}
+                            onChange={(e) => setAddTokenAmount(e.target.value)}
+                            placeholder={`Amount of ${tokenInfo?.symbol || selectedPool.tokenSymbol}`}
+                            step="0.000000001"
+                            min="0"
+                            required
+                          />
+                        </div>
+                        
+                        <div>
+                          <label htmlFor="addSolAmount" className="block text-sm font-medium mb-2">
+                            SOL Amount
+                          </label>
+                          <Input
+                            id="addSolAmount"
+                            type="number"
+                            value={addSolAmount}
+                            onChange={(e) => setAddSolAmount(e.target.value)}
+                            placeholder="Amount of SOL"
+                            step="0.000000001"
+                            min="0"
+                            required
+                          />
+                        </div>
+                        
+                        <Button
+                          type="submit"
+                          disabled={isAddingLiquidity}
+                          className="w-full"
+                        >
+                          {isAddingLiquidity ? 'Adding Liquidity...' : 'Add Liquidity'}
+                        </Button>
+                      </form>
                     </div>
                     
-                    <div>
-                      <label htmlFor="addSolAmount" className="block text-sm font-medium mb-2">
-                        SOL Amount
-                      </label>
-                      <Input
-                        id="addSolAmount"
-                        type="number"
-                        value={addSolAmount}
-                        onChange={(e) => setAddSolAmount(e.target.value)}
-                        placeholder="Amount of SOL"
-                        step="0.000000001"
-                        min="0"
-                        required
-                      />
+                    {/* Remove Liquidity */}
+                    <div className="border rounded-lg p-6">
+                      <h3 className="text-lg font-medium mb-4">Remove Liquidity</h3>
+                      <form onSubmit={handleRemoveLiquidity} className="space-y-4">
+                        <div>
+                          <label htmlFor="removePercentage" className="block text-sm font-medium mb-2">
+                            Percentage to Remove
+                          </label>
+                          <div className="flex items-center">
+                            <Input
+                              id="removePercentage"
+                              type="number"
+                              value={removePercentage}
+                              onChange={(e) => setRemovePercentage(e.target.value)}
+                              placeholder="Enter percentage (1-100)"
+                              min="1"
+                              max="100"
+                              required
+                              className="flex-1"
+                            />
+                            <span className="ml-2">%</span>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-4 gap-2 my-4">
+                          {[25, 50, 75, 100].map((percent) => (
+                            <Button
+                              key={percent}
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setRemovePercentage(percent.toString())}
+                            >
+                              {percent}%
+                            </Button>
+                          ))}
+                        </div>
+                        
+                        <Button
+                          type="submit"
+                          disabled={isRemovingLiquidity}
+                          className="w-full"
+                          variant="destructive"
+                        >
+                          {isRemovingLiquidity ? 'Removing Liquidity...' : 'Remove Liquidity'}
+                        </Button>
+                      </form>
                     </div>
-                    
-                    <Button
-                      type="submit"
-                      disabled={isAddingLiquidity}
-                      className="w-full"
-                    >
-                      {isAddingLiquidity ? 'Adding Liquidity...' : 'Add Liquidity'}
-                    </Button>
-                  </form>
-                </div>
-                
-                {/* Remove Liquidity */}
-                <div className="border rounded-lg p-6">
-                  <h3 className="text-lg font-medium mb-4">Remove Liquidity</h3>
-                  <form onSubmit={handleRemoveLiquidity} className="space-y-4">
-                    <div>
-                      <label htmlFor="removePercentage" className="block text-sm font-medium mb-2">
-                        Percentage to Remove
-                      </label>
-                      <div className="flex items-center">
-                        <Input
-                          id="removePercentage"
-                          type="number"
-                          value={removePercentage}
-                          onChange={(e) => setRemovePercentage(e.target.value)}
-                          placeholder="Enter percentage (1-100)"
-                          min="1"
-                          max="100"
-                          required
-                          className="flex-1"
-                        />
-                        <span className="ml-2">%</span>
+                  </div>
+                  
+                  {/* Technical Details */}
+                  <div className="border rounded-lg p-6">
+                    <h3 className="text-lg font-medium mb-4">Technical Details</h3>
+                    <div className="space-y-2 text-sm">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <div>
+                          <span className="text-muted-foreground">Token Mint:</span>
+                          <div className="font-mono break-all">{selectedPool.tokenMint}</div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">LP Mint:</span>
+                          <div className="font-mono break-all">{selectedPool.lpMint}</div>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <div>
+                          <span className="text-muted-foreground">Base Vault:</span>
+                          <div className="font-mono break-all">{selectedPool.baseVault}</div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Quote Vault:</span>
+                          <div className="font-mono break-all">{selectedPool.quoteVault}</div>
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Pool Type:</span>
+                        <div>Raydium AMM Pool (SOL/{tokenInfo?.symbol || selectedPool.tokenSymbol})</div>
                       </div>
                     </div>
-                    
-                    <div className="grid grid-cols-4 gap-2 my-4">
-                      {[25, 50, 75, 100].map((percent) => (
-                        <Button
-                          key={percent}
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setRemovePercentage(percent.toString())}
-                        >
-                          {percent}%
-                        </Button>
-                      ))}
-                    </div>
-                    
-                    <Button
-                      type="submit"
-                      disabled={isRemovingLiquidity}
-                      className="w-full"
-                      variant="destructive"
-                    >
-                      {isRemovingLiquidity ? 'Removing Liquidity...' : 'Remove Liquidity'}
-                    </Button>
-                  </form>
-                </div>
-              </div>
-              
-              {/* Advanced Pool Info */}
-              <div className="border rounded-lg p-6">
-                <h3 className="text-lg font-medium mb-4">Technical Details</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <div>
-                      <span className="text-muted-foreground">Token Mint:</span>
-                      <div className="font-mono break-all">{selectedPool.tokenMint}</div>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">LP Mint:</span>
-                      <div className="font-mono break-all">{selectedPool.lpMint}</div>
-                    </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <div>
-                      <span className="text-muted-foreground">Base Vault:</span>
-                      <div className="font-mono break-all">{selectedPool.baseVault}</div>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Quote Vault:</span>
-                      <div className="font-mono break-all">{selectedPool.quoteVault}</div>
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Pool Type:</span>
-                    <div>Raydium AMM Pool (SOL/{tokenInfo?.symbol || selectedPool.tokenSymbol})</div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Pool Stats */}
-              <div className="border rounded-lg p-6">
-                <h3 className="text-lg font-medium mb-4">Pool Performance</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="border rounded-md p-3">
-                    <h4 className="text-sm text-muted-foreground">24h Volume</h4>
-                    <p className="text-lg font-medium">0.00 SOL</p>
-                  </div>
-                  <div className="border rounded-md p-3">
-                    <h4 className="text-sm text-muted-foreground">24h Fees</h4>
-                    <p className="text-lg font-medium">0.00 SOL</p>
-                  </div>
-                  <div className="border rounded-md p-3">
-                    <h4 className="text-sm text-muted-foreground">APR</h4>
-                    <p className="text-lg font-medium">0.00%</p>
-                  </div>
-                  <div className="border rounded-md p-3">
-                    <h4 className="text-sm text-muted-foreground">Your Share</h4>
-                    <p className="text-lg font-medium">100%</p>
-                  </div>
-                </div>
-                <p className="text-sm text-muted-foreground mt-4">
-                  Note: This is a simulated pool for demonstration purposes. In a production environment, these statistics would reflect real on-chain data.
-                </p>
-              </div>
+                </>
+              ) : (
+                <PoolAnalytics pool={selectedPool} />
+              )}
             </div>
           )}
         </div>
       </div>
     </div>
-  );
-}
+  )}

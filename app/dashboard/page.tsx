@@ -4,12 +4,17 @@ import { useState, useEffect } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
 import { useToast } from '@/components/ui/use-toast';
+import { Button } from '@/components/ui/button';
 import { getMint, TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID, getAccount } from '@solana/spl-token';
 import { mintTokens, transferTokens, getTokenAccounts } from '@/lib/solana';
+import Link from 'next/link';
 
 // Import Metaplex for proper metadata handling
 import { Metaplex } from '@metaplex-foundation/js';
 import TokenMetadataUpload from "@/components/TokenMetadataUpload";
+
+// Import the function to check pools
+import { checkTokenHasPool } from '@/lib/raydium-client';
 
 interface TokenInfo {
   mintAddress: string;
@@ -20,7 +25,9 @@ interface TokenInfo {
   uri: string;
   createdAt: string;
   balance: string; // Added balance field
+  hasPool: boolean; // New field to track if token has a liquidity pool
 }
+
 
 export default function DashboardPage() {
   const wallet = useWallet();
@@ -36,7 +43,7 @@ export default function DashboardPage() {
   const [isMinting, setIsMinting] = useState(false);
   const [isTransferring, setIsTransferring] = useState(false);
   const [customMintAddress, setCustomMintAddress] = useState('');
-console.log(tokens)
+  console.log(tokens)
 
   const fetchTokens = async () => {
     if (!publicKey) {
@@ -172,6 +179,9 @@ console.log(tokens)
             console.warn('No metadata found for token:', mintAddress);
           }
 
+          // Check if token has a Raydium pool
+          const hasPool = await checkTokenHasPool(connection, mintAddress);
+
           return {
             mintAddress,
             supply: mintInfo.supply.toString(),
@@ -180,7 +190,8 @@ console.log(tokens)
             symbol,
             uri,
             balance: balance.toString(),
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            hasPool
           };
         } catch (error) {
           console.error('Error processing token account:', error);
@@ -221,6 +232,9 @@ console.log(tokens)
             console.warn('No metadata found for owned mint:', mintAddress);
           }
 
+          // Check if token has a Raydium pool
+          const hasPool = await checkTokenHasPool(connection, mintAddress);
+
           return {
             mintAddress,
             supply: mintInfo.supply.toString(),
@@ -229,7 +243,8 @@ console.log(tokens)
             symbol,
             uri,
             balance: '0', // Default to 0 as we don't have a token account
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            hasPool
           };
         } catch (error) {
           console.error('Error processing owned mint:', error);
@@ -309,6 +324,9 @@ console.log(tokens)
       if (!publicKey) throw new Error('No public key available');
       const isCreator = mintInfo.mintAuthority && mintInfo.mintAuthority.equals(publicKey);
       
+      // Check if token has a Raydium pool
+      const hasPool = await checkTokenHasPool(connection, mintAddressStr);
+      
       // Add to token list if not already there
       setTokens(prev => {
         const exists = prev.some(t => t.mintAddress === mintAddressStr);
@@ -321,7 +339,8 @@ console.log(tokens)
             symbol,
             uri,
             balance,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            hasPool
           }];
         }
         return prev;
@@ -552,7 +571,8 @@ console.log(tokens)
                           </div>
                         </div>
                       </div>
-                    </div>)}
+                    </div>
+                  )}
                 </div>
 
                 <div className="overflow-x-auto">
@@ -565,8 +585,7 @@ console.log(tokens)
                         <th className="text-left py-3 px-4">Mint Address</th>
                         <th className="text-left py-3 px-4">Balance</th>
                         <th className="text-left py-3 px-4">Supply</th>
-                        <th className="text-left py-3 px-4">Decimals</th>
-                        <th className="text-left py-3 px-4">Created At</th>
+                        <th className="text-left py-3 px-4">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -592,12 +611,35 @@ console.log(tokens)
                           <td className="py-3 px-4">{token.name}</td>
                           <td className="py-3 px-4">{token.symbol}</td>
                           <td className="py-3 px-4 font-mono text-sm">
-                            {token.mintAddress}
+                            {token.mintAddress.substring(0, 6)}...{token.mintAddress.substring(token.mintAddress.length - 4)}
                           </td>
-                          <td className="py-3 px-4">{token.balance}</td>
-                          <td className="py-3 px-4">{token.supply}</td>
-                          <td className="py-3 px-4">{token.decimals}</td>
-                          <td className="py-3 px-4">{new Date(token.createdAt).toLocaleString()}</td>
+                          <td className="py-3 px-4">{parseFloat(token.balance) / Math.pow(10, token.decimals)}</td>
+                          <td className="py-3 px-4">{parseFloat(token.supply) / Math.pow(10, token.decimals)}</td>
+                          <td className="py-3 px-4">
+                            <div className="flex space-x-2">
+                              <Link 
+                                href={`/swap?token=${token.mintAddress}`}
+                                className="px-3 py-1 bg-primary text-primary-foreground text-xs rounded-md hover:bg-primary/90"
+                              >
+                                Swap
+                              </Link>
+                              {!token.hasPool ? (
+                                <Link 
+                                  href={`/liquidity?token=${token.mintAddress}`}
+                                  className="px-3 py-1 bg-secondary text-xs rounded-md hover:bg-secondary/90"
+                                >
+                                  Create Pool
+                                </Link>
+                              ) : (
+                                <Link 
+                                  href={`/manage-pools?token=${token.mintAddress}`}
+                                  className="px-3 py-1 bg-secondary text-xs rounded-md hover:bg-secondary/90"
+                                >
+                                  Manage Pool
+                                </Link>
+                              )}
+                            </div>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
