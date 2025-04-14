@@ -5,17 +5,19 @@ A decentralized platform for launching and managing tokens on the Solana blockch
 ## Features
 
 - Token Creation and Management
-- Wallet Integration (Phantom)
-- Devnet Support
+- User-friendly Token Minting Interface
+- Wallet Integration (Phantom, Solflare, and other Solana wallets)
+- Solana Devnet Support
 - Token Metadata Management
-- Liquidity Pool Integration (Coming Soon)
+- Real-time Token Balance Display
+- Transaction History
+- Modern, Responsive UI with Shadcn/UI
 
 ## Prerequisites
 
 - Node.js (v18 or higher)
 - npm or yarn
-- Phantom Wallet browser extension
-- Solana CLI tools (optional)
+- Solana compatible wallet (Phantom recommended)
 - Helius API Key (for RPC access)
 
 ## Getting Started
@@ -52,68 +54,69 @@ yarn dev
 ```
 token-launch-pad/
 ├── app/                    # Next.js app router pages
-│   ├── page.tsx           # Main application page
-│   └── layout.tsx         # Root layout component
-├── components/            # Reusable React components
-│   ├── AppWalletProvider.tsx  # Solana wallet integration
-│   ├── TokenCreator.tsx   # Token creation interface
-│   └── TokenManager.tsx   # Token management interface
-├── lib/                   # Utility functions and configurations
-├── public/               # Static assets
-└── utils/                # Solana program interactions
+│   ├── page.tsx            # Main landing page
+│   ├── layout.tsx          # Root layout component
+│   ├── create-tokens/      # Token creation page
+│   └── my-tokens/          # Token management page
+├── components/             # Reusable React components
+│   ├── ui/                 # Shadcn UI components
+│   ├── create-token-form/  # Token creation form components
+│   ├── my-tokens/          # Token listing and management components
+│   ├── transactions/       # Transaction-related components
+│   └── wallet/             # Wallet connection components
+├── lib/                    # Utility functions and configurations
+│   ├── solana/             # Solana-specific utilities
+│   ├── utils.ts            # General utility functions
+│   └── constants.ts        # Application constants
+├── public/                 # Static assets
 ```
 
 ## Implementation Details
 
 ### Wallet Integration
 - Uses `@solana/wallet-adapter-react` for wallet management
-- Supports Phantom Wallet through `@solana/wallet-adapter-wallets`
-- Implements auto-connect functionality for better UX
-- Handles wallet connection state and error handling
+- Supports multiple Solana wallets including Phantom and Solflare
+- Smooth wallet connection flow with proper error handling
+- Secure transaction signing
 
 ### Token Creation
-- Implements SPL Token program for token creation
-- Supports metadata configuration using Metaplex
-- Handles token supply and distribution
-- Includes validation for token parameters
+- Implements Solana SPL Token program for token creation
+- Configurable token supply, decimals, and metadata
+- User-friendly form with validation
+- Clear feedback on transaction success or failure
 
 ### Token Management
-- View and update token metadata
-- Manage token supply and distribution
-- Track token balances and transactions
-- Handle token transfers and burns
+- View all tokens created by the connected wallet
+- Display token details including supply, decimals, and mint address
+- Visual representation of token icons
+- Transaction history for each token
 
-## Upcoming Features
+## Future Enhancements
 
-### Liquidity Pool Integration
-- Implement Raydium or Orca protocol integration
-- Add liquidity provision functionality
-- Create swap interfaces
-- Implement pool analytics and statistics
-
-### Advanced Token Features
-- Token vesting schedules using time-lock accounts
-- Token locking mechanisms for staking
-- Governance token integration with voting
-- Token distribution and airdrop tools
+- Token transfer functionality
+- Advanced token metadata with images
+- Token analytics dashboard
+- Social sharing for created tokens
+- Multi-chain support
+- Token locking and vesting schedules
 
 ## Development
 
 ### Tech Stack
-- Next.js (App Router)
-- TypeScript 5.0+
+- Next.js 14 (App Router)
+- TypeScript
 - Solana Web3.js
 - @solana/wallet-adapter
 - Tailwind CSS
-- Shadcn/ui components
-
-
-
+- Shadcn/UI components
 
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
+## Credits
+
+Created by Raghavender Singh
 
 ## ⭐ Found This Helpful? Show Some Love! ⭐
 
